@@ -32,8 +32,7 @@ export default function StorePage() {
     }
 
     load();
-    return () => {if (!user?.uid) return;
-
+    return () => {
       mounted = false;
     };
   }, []);
@@ -43,7 +42,7 @@ export default function StorePage() {
       <header className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Store</h1>
-          <p className="text-sm text-gray-600">{user?.email}</p>
+          {user && <p className="text-sm text-gray-600">{user.email}</p>}
         </div>
 
         <div className="flex gap-3 items-center">
@@ -53,13 +52,23 @@ export default function StorePage() {
           <Link className="underline" href="/orders">
             Orders
           </Link>
-          <button
-            onClick={firebaseSignOut}
-            className="bg-black text-white rounded px-3 py-1"
-            type="button"
-          >
-            Sign Out
-          </button>
+
+          {user ? (
+            <button
+              onClick={firebaseSignOut}
+              className="bg-black text-white rounded px-3 py-1"
+              type="button"
+            >
+              Sign Out
+            </button>
+          ) : (
+            <Link
+              href="/login"
+              className="bg-black text-white rounded px-3 py-1"
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       </header>
 
