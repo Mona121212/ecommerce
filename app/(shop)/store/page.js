@@ -32,7 +32,8 @@ export default function StorePage() {
     }
 
     load();
-    return () => {
+    return () => {if (!user?.uid) return;
+
       mounted = false;
     };
   }, []);

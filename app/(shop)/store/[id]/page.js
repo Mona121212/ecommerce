@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { getProductById } from "../../../_services/products-service";
 import { addToCart } from "../../../_services/cart-service";
@@ -53,7 +53,9 @@ export default function ProductDetailPage() {
   }, [productId]);
 
   async function handleAdd() {
-    if (!user) return;
+    if (!user?.uid) return;
+    if (!product) return;
+
     setAdding(true);
     setAddErr("");
 
@@ -92,9 +94,19 @@ export default function ProductDetailPage() {
         <Link className="underline" href="/store">
           Back
         </Link>
-        <Link className="underline" href="/cart">
-          Cart
-        </Link>
+
+        {user ? (
+          <Link className="underline" href="/cart">
+            Cart
+          </Link>
+        ) : (
+          <Link
+            className="underline"
+            href={`/login?next=${encodeURIComponent(`/store/${productId}`)}`}
+          >
+            Login
+          </Link>
+        )}
       </div>
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -127,14 +139,23 @@ export default function ProductDetailPage() {
 
           {addErr && <p className="text-red-600 text-sm">{addErr}</p>}
 
-          <button
-            type="button"
-            onClick={handleAdd}
-            disabled={adding || !product}
-            className="mt-2 bg-black text-white rounded px-4 py-2 disabled:opacity-60"
-          >
-            {adding ? "Adding..." : "Add to Cart"}
-          </button>
+          {user ? (
+            <button
+              type="button"
+              onClick={handleAdd}
+              disabled={adding || !product}
+              className="mt-2 bg-black text-white rounded px-4 py-2 disabled:opacity-60"
+            >
+              {adding ? "Adding..." : "Add to Cart"}
+            </button>
+          ) : (
+            <Link
+              href={`/login?next=${encodeURIComponent(`/store/${productId}`)}`}
+              className="mt-2 inline-block text-center bg-black text-white rounded px-4 py-2"
+            >
+              Login to add to cart
+            </Link>
+          )}
         </div>
       </div>
     </main>
