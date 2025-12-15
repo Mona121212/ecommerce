@@ -1,4 +1,4 @@
-import { db } from "../_utils/firebase";
+import { getFirebaseDb } from "../_utils/firebase";
 import {
   collection,
   getDocs,
@@ -9,7 +9,15 @@ import {
   orderBy,
 } from "firebase/firestore";
 
+function requireDb() {
+  const db = getFirebaseDb();
+  if (!db) throw new Error("Firestore not initialized");
+  return db;
+}
+
 export async function createOrder(userId, order) {
+  const db = requireDb();
+
   const ordersRef = collection(db, "users", userId, "orders");
   const payload = {
     createdAt: Date.now(),
@@ -25,6 +33,8 @@ export async function createOrder(userId, order) {
 }
 
 export async function getOrders(userId) {
+  const db = requireDb();
+
   const orders = [];
   const ordersRef = collection(db, "users", userId, "orders");
   const q = query(ordersRef, orderBy("createdAt", "desc"));
@@ -38,6 +48,8 @@ export async function getOrders(userId) {
 }
 
 export async function clearCart(userId) {
+  const db = requireDb();
+
   const cartRef = collection(db, "users", userId, "cartItems");
   const snap = await getDocs(cartRef);
 

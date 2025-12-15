@@ -1,13 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import {
-  onAuthStateChanged,
-  signOut,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-} from "firebase/auth";
-import { auth } from "./firebase";
+import { getFirebaseAuth } from "./firebase";
 
 /* =====================
    create Context
@@ -21,25 +15,52 @@ export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
-  const emailSignUp = (email, password) => {
+  const emailSignUp = async (email, password) => {
+    const auth = getFirebaseAuth();
+    if (!auth) throw new Error("Firebase Auth not initialized");
+    const { createUserWithEmailAndPassword } = await import("firebase/auth");
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  const emailSignIn = (email, password) => {
+  const emailSignIn = async (email, password) => {
+    const auth = getFirebaseAuth();
+    if (!auth) throw new Error("Firebase Auth not initialized");
+    const { signInWithEmailAndPassword } = await import("firebase/auth");
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const firebaseSignOut = () => {
+  const firebaseSignOut = async () => {
+    const auth = getFirebaseAuth();
+    if (!auth) return;
+    const { signOut } = await import("firebase/auth");
     return signOut(auth);
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser ?? null);
-      setAuthLoading(false);
-    });
+    let unsubscribe = null;
 
-    return () => unsubscribe();
+    (async () => {
+      try {
+        const auth = getFirebaseAuth();
+        if (!auth) {
+          setAuthLoading(false);
+          return;
+        }
+
+        const { onAuthStateChanged } = await import("firebase/auth");
+        unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser ?? null);
+          setAuthLoading(false);
+        });
+      } catch (e) {
+        setUser(null);
+        setAuthLoading(false);
+      }
+    })();
+
+    return () => {
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
   }, []);
 
   const value = useMemo(

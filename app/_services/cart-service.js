@@ -1,4 +1,4 @@
-import { db } from "../_utils/firebase";
+import { getFirebaseDb } from "../_utils/firebase";
 import {
   collection,
   getDocs,
@@ -11,7 +11,15 @@ import {
   limit,
 } from "firebase/firestore";
 
+function requireDb() {
+  const db = getFirebaseDb();
+  if (!db) throw new Error("Firestore not initialized");
+  return db;
+}
+
 export async function getCartItems(userId) {
+  const db = requireDb();
+
   const items = [];
   const ref = collection(db, "users", userId, "cartItems");
   const snap = await getDocs(ref);
@@ -24,6 +32,8 @@ export async function getCartItems(userId) {
 }
 
 export async function addToCart(userId, product, qty = 1) {
+  const db = requireDb();
+
   const cartRef = collection(db, "users", userId, "cartItems");
 
   const productId = Number(product?.id);
@@ -63,6 +73,8 @@ export async function addToCart(userId, product, qty = 1) {
 }
 
 export async function updateCartItemQty(userId, cartItemId, quantity) {
+  const db = requireDb();
+
   const qty = Number(quantity);
   if (!cartItemId) throw new Error("Missing cart item id");
   if (!Number.isFinite(qty) || qty < 1) throw new Error("Invalid quantity");
@@ -72,6 +84,8 @@ export async function updateCartItemQty(userId, cartItemId, quantity) {
 }
 
 export async function removeCartItem(userId, cartItemId) {
+  const db = requireDb();
+
   if (!cartItemId) throw new Error("Missing cart item id");
   const ref = doc(db, "users", userId, "cartItems", cartItemId);
   await deleteDoc(ref);
