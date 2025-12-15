@@ -9,8 +9,14 @@ import {
 } from "firebase/auth";
 import { auth } from "./firebase";
 
+/* =====================
+   create Context
+===================== */
 const AuthContext = createContext(null);
 
+/* =====================
+   Provider
+===================== */
 export function AuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -32,20 +38,31 @@ export function AuthContextProvider({ children }) {
       setUser(currentUser ?? null);
       setAuthLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 
   const value = useMemo(
-    () => ({ user, authLoading, emailSignUp, emailSignIn, firebaseSignOut }),
+    () => ({
+      user,
+      authLoading,
+      emailSignUp,
+      emailSignIn,
+      firebaseSignOut,
+    }),
     [user, authLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/* =====================
+   Hook
+===================== */
 export function useUserAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx)
+  if (!ctx) {
     throw new Error("useUserAuth must be used within AuthContextProvider");
+  }
   return ctx;
 }

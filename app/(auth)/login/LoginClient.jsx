@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useUserAuth } from "../../_utils/auth-context";
 
-export default function LoginPage() {
+export default function LoginClient() {
   const { emailSignIn } = useUserAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
