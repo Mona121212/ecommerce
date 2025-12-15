@@ -13,10 +13,11 @@ export async function createOrder(userId, order) {
   const ordersRef = collection(db, "users", userId, "orders");
   const payload = {
     createdAt: Date.now(),
-    status: "placed",
+    status: String(order?.status ?? "placed"),
     total: Number(order?.total ?? 0),
     items: Array.isArray(order?.items) ? order.items : [],
     shipping: order?.shipping ?? null,
+    payment: order?.payment ?? null,
   };
 
   const docRef = await addDoc(ordersRef, payload);
