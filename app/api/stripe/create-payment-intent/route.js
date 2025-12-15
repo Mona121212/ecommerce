@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
-import { stripe } from "../../../_utils/stripe";
+import { getStripe } from "../../../_utils/stripe";
 
 export async function POST(req) {
   try {
+    const stripe = getStripe();
+
     const { amount } = await req.json();
 
     const cleanAmount = Number(amount);
