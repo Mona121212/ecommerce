@@ -1,3 +1,4 @@
+import "./globals.css";
 import { AuthContextProvider } from "./_utils/auth-context";
 import type { ReactNode } from "react";
 
